@@ -190,6 +190,7 @@ services:
       - "archivematica-storage-service"
 
   archivematica-storage-service:
+    privileged: true
     build:
       context: "../src/archivematica-storage-service"
     environment:
