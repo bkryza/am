@@ -79,6 +79,7 @@ services:
       - "archivematica_pipeline_data:/var/archivematica/sharedDirectory:rw"  # Read and write needed!
 
   clamavd:
+    privileged: true
     image: "artefactual/clamav:latest"
     environment:
       CLAMAV_MAX_FILE_SIZE: "${CLAMAV_MAX_FILE_SIZE}"
@@ -100,6 +101,7 @@ services:
       - "62081:8000"
 
   archivematica-mcp-server:
+    privileged: true
     build:
       context: "../src/archivematica/src"
       dockerfile: "MCPServer.Dockerfile"
@@ -114,6 +116,11 @@ services:
       ARCHIVEMATICA_MCPSERVER_SEARCH_ENABLED: "${AM_SEARCH_ENABLED:-true}"
       ARCHIVEMATICA_MCPSERVER_MCPSERVER_PROMETHEUS_BIND_PORT: "7999"
       ARCHIVEMATICA_MCPSERVER_MCPSERVER_PROMETHEUS_BIND_ADDRESS: "0.0.0.0"
+      ONECLIENT_ACCESS_TOKEN: ${ONECLIENT_ACCESS_TOKEN}
+      ONECLIENT_PROVIDER_HOST: ${ONECLIENT_PROVIDER_HOST}
+      ONECLIENT_SPACE: ${ONECLIENT_SPACE}
+      ONECLIENT_OPTS: ${ONECLIENT_OPTS}
+      ONECLIENT_MOUNTPOINT: ${ONECLIENT_MOUNTPOINT}
     volumes:
       - "../src/archivematica/src/archivematicaCommon/:/src/archivematicaCommon/"
       - "../src/archivematica/src/dashboard/:/src/dashboard/"
@@ -124,6 +131,7 @@ services:
       - "gearmand"
 
   archivematica-mcp-client:
+    privileged: true
     build:
       context: "../src/archivematica/src"
       dockerfile: "MCPClient.Dockerfile"
@@ -147,7 +155,11 @@ services:
       ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_CLAMAV_CLIENT_BACKEND: "clamdscanner" # Option: clamdscanner or clamscan;
       ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_PROMETHEUS_BIND_PORT: "7999"
       ARCHIVEMATICA_MCPCLIENT_MCPCLIENT_PROMETHEUS_BIND_ADDRESS: "0.0.0.0"
-
+      ONECLIENT_ACCESS_TOKEN: ${ONECLIENT_ACCESS_TOKEN}
+      ONECLIENT_PROVIDER_HOST: ${ONECLIENT_PROVIDER_HOST}
+      ONECLIENT_SPACE: ${ONECLIENT_SPACE}
+      ONECLIENT_OPTS: ${ONECLIENT_OPTS}
+      ONECLIENT_MOUNTPOINT: ${ONECLIENT_MOUNTPOINT}
     volumes:
       - "../src/archivematica/src/archivematicaCommon/:/src/archivematicaCommon/"
       - "../src/archivematica/src/dashboard/:/src/dashboard/"
@@ -202,6 +214,11 @@ services:
       SS_DB_URL: "mysql://archivematica:demo@mysql/SS"
       SS_GNUPG_HOME_PATH: "/var/archivematica/storage_service/.gnupg"
       SS_PROMETHEUS_ENABLED: "true"
+      ONECLIENT_ACCESS_TOKEN: ${ONECLIENT_ACCESS_TOKEN}
+      ONECLIENT_PROVIDER_HOST: ${ONECLIENT_PROVIDER_HOST}
+      ONECLIENT_SPACE: ${ONECLIENT_SPACE}
+      ONECLIENT_OPTS: ${ONECLIENT_OPTS}
+      ONECLIENT_MOUNTPOINT: ${ONECLIENT_MOUNTPOINT}
     volumes:
       - "../src/archivematica-storage-service/:/src/"
       - "../src/archivematica-sampledata/:/home/archivematica/archivematica-sampledata/:ro"
@@ -210,3 +227,8 @@ services:
       - "archivematica_storage_service_location_data:/home:rw"
     links:
       - "mysql"
+
+  minio:
+    image: 'onedata/minio:v1'
+    ports:
+      - "4569:80"
